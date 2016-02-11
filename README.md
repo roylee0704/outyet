@@ -1,2 +1,2 @@
 # outyet
-spins up go-web-server that checks if a specific http resource is available.
+A web server that announces whether or not a particular Go version has been tagged. 
