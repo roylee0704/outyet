@@ -46,8 +46,9 @@ func TestIntegration(t *testing.T) {
 		done <- true
 	}
 
-	// this is known as  defer closure
-	// consider other test might access, and causing dead-lock
+	// this is known as defer-closure.
+	// consider other test might access, and causing dead-lock, it's good virtue
+	// to put back where it was after used
 	defer func() {
 		pollSleep = time.Sleep
 		pollDone = func() {}
