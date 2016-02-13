@@ -16,14 +16,46 @@ import (
 4. Prepare a recorder
 5. Trigger own server's Handler(Recorder ,GET-req)
 6. Check result from Recorder.
+
+
+Conclusion:
+- to test response from Third Party Server.
+	1. (SETUP) Fake Third Party Server.
+	2. (SETUP) So that you can fake the handler(Response) from Faked third party server
+	3. Then you can check actual between exptected RESPONSE.
+
+
+- to test your own Server.
+	1. Run your own Server.
+	2. Fake a client REQUEST.
+	3. Inspect the RESPONSE.
 */
 func TestIntegration(t *testing.T) {
 	status := statusHandler(404)      // always returns 404
 	ts := httptest.NewServer(&status) // fake server (third-party)
 	defer ts.Close()
 
+	// override with my own `sleep` implementation
+	sleep := make(chan bool)
+	pollSleep = func(time.Duration) {
+		sleep <- true // notify that I'm start sleeping.
+		sleep <- true // notify that I can leave.
+	}
+	done := make(chan bool)
+	pollDone = func() {
+		done <- true
+	}
+
+	// this is known as  defer closure
+	// consider other test might access, and causing dead-lock
+	defer func() {
+		pollSleep = time.Sleep
+		pollDone = func() {}
+	}()
+
 	s := NewServer("1.x", ts.URL, 1*time.Millisecond) // polls from fake server
 
+	<-sleep                                  // goto nextline only after I've received a notification that my Poll has make the first isTagged()
 	r, _ := http.NewRequest("GET", "/", nil) // fake client with GET requests
 	w := httptest.NewRecorder()
 
@@ -33,10 +65,14 @@ func TestIntegration(t *testing.T) {
 		t.Errorf("body = %q, wanted no", b)
 	}
 
-	status = 200
+	status = 200 //update status of faked third party server (there's a race)
 
-	time.Sleep(20 * time.Millisecond) // otherwise no time for server to poll again.
+	<-sleep // allow my own server to exit and goto next loop and call isTagged() again to receive the 200.
 
+	// now, we no longer needs to sleep in testing, we got channel to synchronize
+	//time.Sleep(20 * time.Millisecond) // otherwise no time for server to poll again.
+
+	<-done // make sure only my client only request after the state is updated to YES.
 	w = httptest.NewRecorder()
 	s.ServeHTTP(w, r)
 

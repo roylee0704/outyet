@@ -52,12 +52,19 @@ func NewServer(version, url string, period time.Duration) *Server {
 // Then it sets the Server's yes field true and exits
 func (s *Server) poll() {
 	for !isTagged(s.url) {
-		time.Sleep(s.period)
+		pollSleep(s.period)
 	}
 	s.mu.Lock()
 	s.yes = true
 	s.mu.Unlock()
+	pollDone()
 }
+
+// stop relying on `sleep` and stub out the `sleep` (so i can swap out at test)
+var (
+	pollSleep = time.Sleep
+	pollDone  = func() {} // noop (no operation)
+)
 
 // isTagged makes an HTTP HEAD request to the given URL and reports whether it
 // returned a 200 OK response.
