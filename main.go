@@ -44,7 +44,7 @@ type Server struct {
 func NewServer(version, url string, period time.Duration) *Server {
 
 	s := &Server{version: version, url: url, period: period}
-	go s.poll()
+	go s.poll() // this makes the program concurrent.
 	return s
 }
 
