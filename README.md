@@ -33,7 +33,7 @@ these type of problems. Just like `sleep()`, **it blocks**.
 
 General techniques in solving concurrency problem:
 
-- Signal.**guarantee order of execution by communications**
-- Guard. **guarantee number of simultaneous access & order, too**
+- Signal. *guarantees order of execution by communications*
+- Guard. *guarantees number of simultaneous access & order, too*
 
 The two Problems described above is solved using technique#1, signaling.
