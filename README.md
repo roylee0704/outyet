@@ -1,8 +1,10 @@
 # outyet
+
 A web server that announces whether or not a particular Go version has been tagged.
 
 
 ## Testing
+
 There are two problems here if you look carefully at `main_test.go`
 
 1. Race Condition Problem. A and B are trying to access the same resource, one
