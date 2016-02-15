@@ -23,7 +23,7 @@ Concurrency problems are hard to solve by nature, and it always boils down to
 one evil root-cause: they are `non-deterministic`.
 
 Now you know the root cause, to solve any kind of concurrency problems, it easy,
-you just need to make them `deterministic` again.
+you just need to make them `deterministic` again. The hard part is, HOW?
 
 ---
 ## Solution
